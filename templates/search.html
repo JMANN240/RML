@@ -2,20 +2,12 @@
 {% block title %}Home{% endblock %}
 {% block body %}
 <main class="static">
-	<h1 style="margin-bottom: 1rem;">
-		No stories. No ads. Just recipes.
-	</h1>
-	<h2 style="margin-bottom: 2rem;">
-		Explore below.
-	</h2>
 	<form action="{{url_for('search')}}" method="post" style="display: flex; flex-direction: row; margin-bottom: 2rem;">
-		<input type="text" name="term" style="margin-right: 0.5rem;">
+		<input type="text" name="term" style="margin-right: 0.5rem;" value="{{term}}">
 		<input type="submit" value="Search">
 	</form>
-	<h2 style="margin-bottom: 1rem;">
-		Recent recipes
-	</h2>
-	{% for recipe in recipes %}
+	<h1 style="margin-bottom: 2rem;">Search Results for '{{term}}'</h1>
+	{% for recipe in results %}
 		<a href="{{url_for('recipe', recipe_id=recipe['id'])}}" class="button clickable" style="margin-bottom: 0.5rem;">{{recipe['name']}}</a>
 	{% endfor %}
 </main>

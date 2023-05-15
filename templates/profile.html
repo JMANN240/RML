@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<main class="center">
+	<h1 style="margin-bottom: 2rem;">{{user['username']}}</h1>
+	<a href="{{url_for('recipe_create')}}" class="button clickable" style="margin-bottom: 2rem;">Create Recipe</a>
+	<h2 style="margin-bottom: 1rem;">Your Recipes</h2>
+	{% for recipe in user_recipes %}
+		<a href="{{url_for('recipe', recipe_id=recipe['id'])}}" class="button clickable" style="margin-bottom: 0.5rem;">{{recipe['name']}}</a>
+	{% endfor %}
+</main>
+{% endblock %}

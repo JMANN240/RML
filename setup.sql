@@ -8,4 +8,23 @@ CREATE TABLE IF NOT EXISTS sessions (
 	session_id TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
 	created INTEGER NOT NULL
-)
+);
+
+CREATE TABLE IF NOT EXISTS recipes (
+	id INTEGER PRIMARY KEY,
+	name TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE IF NOT EXISTS recipe_ingredients (
+	recipe_id INTEGER NOT NULL,
+	ingredient TEXT NOT NULL,
+	FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+);
+
+CREATE TABLE IF NOT EXISTS recipe_steps (
+	recipe_id INTEGER NOT NULL,
+	step TEXT NOT NULL,
+	FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+);

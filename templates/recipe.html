@@ -1,19 +1,22 @@
 {% extends "base.html" %}
 {% block title %}Home{% endblock %}
 {% block body %}
-<h1>Cheese Omelette</h1>
-<br>
-<h2>Ingredients</h2>
-<ul>
-    <li>2 Eggs</li>
-    <li>1/2 Cup Cheddar Cheese</li>
-</ul>
-<br>
-<h2>Steps</h2>
-<ol>
-    <li>Crack eggs in pan.</li>
-    <li>Cook until solid.</li>
-    <li>Put cheese on top.</li>
-    <li>Fold in half and serve.</li>
-</ol>
+<main class="static">
+    <h1>{{recipe['name']}}</h1>
+    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Ingredients</h2>
+    <ul>
+        {% for ingredient in ingredients %}
+            <li>{{ingredient['ingredient']}}</li>
+        {% endfor %}
+    </ul>
+    <h2 style="margin-top: 2rem; margin-bottom: 1rem;">Steps</h2>
+    <ol>
+        {% for step in steps %}
+            <li>{{step['step']}}</li>
+        {% endfor %}
+    </ol>
+    {% if recipe['user_id'] == user_id %}
+        <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-top: 2rem; margin-bottom: 1rem;" class="button clickable">Edit Recipe</a>
+    {% endif %}
+</main>
 {% endblock %}

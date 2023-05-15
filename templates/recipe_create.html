@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Create Recipe{% endblock %}
+{% block body %}
+<main>
+    <form method="post">
+        <h1>Create Recipe</h1>
+        <input type="text" name="recipe-name" placeholder="Recipe name">
+        <textarea name="ingredients" placeholder="Newline separated ingredients"></textarea>
+        <textarea name="steps" placeholder="Newline separated steps"></textarea>
+        <input type="submit" value="Create" class="clickable">
+    </form>
+</main>
+{% endblock %}
