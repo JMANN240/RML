@@ -15,7 +15,10 @@
         {% endfor %}
     </ol>
     {% if recipe['user_id'] == user_id %}
-        <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-top: 2rem; margin-bottom: 1rem;" class="button clickable">Edit Recipe</a>
+    <div style="display: flex; margin-top: 2rem;">
+        <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-right: 1rem;" class="button clickable">Edit Recipe</a>
+        <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
+    </div>
     {% endif %}
 </main>
 {% endblock %}

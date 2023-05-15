@@ -115,7 +115,7 @@ input[type=text], input[type=password], input[type=submit], textarea {
 }
 
 input[type=text], input[type=password] {
-	width: 40%;
+	width: max(16ch, 40%);
 }
 
 textarea {

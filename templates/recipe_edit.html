@@ -3,8 +3,8 @@
 <main>
     <form method="post">
         <h1>Edit Recipe</h1>
-        <input type="hidden" name="recipe-id" value="{{recipe_id}}">
-        <input type="text" name="recipe-name" placeholder="Recipe name" value="{{recipe['name']}}">
+        <input type="hidden" name="recipe-id" value="{{recipe_id}}" required>
+        <input type="text" name="recipe-name" placeholder="Recipe name" value="{{recipe['name']}}" required>
         <textarea name="ingredients" placeholder="Newline separated ingredients">{{ingredients}}</textarea>
         <textarea name="steps" placeholder="Newline separated steps">{{steps}}</textarea>
         <input type="submit" value="Update" class="clickable">

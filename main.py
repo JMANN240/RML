@@ -17,7 +17,7 @@ def inject_user():
 	session = res.fetchone()
 	if session is None:
 		return dict(user_id=None)
-	return dict(user_id=session['user_id'])
+	return dict(user_id=session.get('user_id'))
 
 @app.route('/')
 def index():
@@ -45,18 +45,25 @@ def search():
 		return render_template('search.html', results=results, term=term, title='Search')
 	
 	elif request.method == 'POST':
-		return redirect(url_for('search', search=request.form['term']))
+		term = request.form.get('term')
+		if term is None:
+			flash("Search term cannot be empty", 'error')
+			return redirect(url_for('index'))
+		return redirect(url_for('search', search=term))
 
 @app.route('/recipe/<recipe_id>')
 def recipe(recipe_id):
 	con, cur = get_db()
 	res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 	recipe = res.fetchone()
+	if recipe is None:
+		flash(f"Recipe with ID {recipe_id} not found", 'error')
+		return redirect(url_for('index'))
 	res = cur.execute('SELECT * FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 	ingredients = res.fetchall()
 	res = cur.execute('SELECT * FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 	steps = res.fetchall()
-	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe['name'])
+	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'))
 
 @app.route('/recipe/create', methods=['GET', 'POST'])
 @requires_login
@@ -66,19 +73,34 @@ def recipe_create():
 
 	elif request.method == 'POST':
 		user_id = request.user_id
-		recipe_name = request.form['recipe-name']
-		recipe_ingredients = request.form['ingredients'].split('\n')
-		recipe_steps = request.form['steps'].split('\n')
+		recipe_name = request.form.get('recipe-name')
+		recipe_ingredients_pre = request.form.get('ingredients')
+		recipe_steps_pre = request.form.get('steps')
+
+		if recipe_name is None:
+			flash("Recipe name cannot be empty", 'error')
+			return redirect(url_for('recipe_create'))
+
+		if recipe_ingredients_pre is None:
+			flash("Recipe ingredients cannot be empty", 'error')
+			return redirect(url_for('recipe_create'))
+
+		if recipe_steps_pre is None:
+			flash("Recipe steps cannot be empty", 'error')
+			return redirect(url_for('recipe_create'))
+
+		recipe_ingredients = recipe_ingredients_pre.split('\n')
+		recipe_steps = recipe_steps_pre.split('\n')
 
 		con, cur = get_db()
 		cur.execute('INSERT INTO recipes (name, user_id) VALUES (?, ?)', (recipe_name, user_id))
 		res = cur.execute("SELECT * FROM recipes ORDER BY id DESC LIMIT 1")
 		recipe = res.fetchone()
-		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe['id'], ingredient) for ingredient in recipe_ingredients])
-		cur.executemany('INSERT INTO recipe_steps (recipe_id, step) VALUES (?, ?)', [(recipe['id'], step) for step in recipe_steps])
+		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe.get('id'), ingredient) for ingredient in recipe_ingredients])
+		cur.executemany('INSERT INTO recipe_steps (recipe_id, step) VALUES (?, ?)', [(recipe.get('id'), step) for step in recipe_steps])
 		con.commit()
 
-		return redirect(url_for('recipe', recipe_id=recipe['id']))
+		return redirect(url_for('recipe', recipe_id=recipe.get('id')))
 
 @app.route('/recipe/<recipe_id>/edit', methods=['GET', 'POST'])
 @requires_login
@@ -87,22 +109,49 @@ def recipe_edit(recipe_id):
 		con, cur = get_db()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
+		if recipe is None:
+			flash(f"Recipe with ID {recipe_id} not found", 'error')
+			return redirect(url_for('index'))
 		res = cur.execute('SELECT * FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		ingredients = res.fetchall()
-		ingredients = '\n'.join([ingredient['ingredient'] for ingredient in ingredients])
+		ingredients = '\n'.join([ingredient.get('ingredient') for ingredient in ingredients])
 		res = cur.execute('SELECT * FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 		steps = res.fetchall()
-		steps = '\n'.join([step['step'] for step in steps])
+		steps = '\n'.join([step.get('step') for step in steps])
 		return render_template('recipe_edit.html', recipe_id=recipe_id, recipe=recipe, ingredients=ingredients, steps=steps, title='Edit Recipe')
 
 	elif request.method == 'POST':
 		user_id = request.user_id
-		recipe_id = request.form['recipe-id']
-		recipe_name = request.form['recipe-name']
-		recipe_ingredients = request.form['ingredients'].split('\n')
-		recipe_steps = request.form['steps'].split('\n')
+		recipe_id = request.form.get('recipe-id')
+		recipe_name = request.form.get('recipe-name')
+		recipe_ingredients_pre = request.form.get('ingredients')
+		recipe_steps_pre = request.form.get('steps')
+
+		if recipe_id is None:
+			flash("Recipe ID cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		if recipe_name is None:
+			flash("Recipe name cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		if recipe_ingredients_pre is None:
+			flash("Recipe ingredients cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		if recipe_steps_pre is None:
+			flash("Recipe steps cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		recipe_ingredients = recipe_ingredients_pre.split('\n')
+		recipe_steps = recipe_steps_pre.split('\n')
 
 		con, cur = get_db()
+		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
+		recipe = res.fetchone()
+		if recipe is None:
+			flash(f"Recipe with ID {recipe_id} not found", 'error')
+			return redirect(url_for('index'))
 		cur.execute('UPDATE recipes SET name=? WHERE id=?', (recipe_name, recipe_id))
 		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
@@ -112,6 +161,38 @@ def recipe_edit(recipe_id):
 
 		return redirect(url_for('recipe', recipe_id=recipe_id))
 
+@app.route('/recipe/<recipe_id>/delete', methods=['GET', 'POST'])
+@requires_login
+def recipe_delete(recipe_id):
+	if request.method == 'GET':
+		con, cur = get_db()
+		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
+		recipe = res.fetchone()
+		if recipe is None:
+			flash(f"Recipe with ID {recipe_id} not found", 'error')
+			return redirect(url_for('index'))
+		return render_template('recipe_delete.html', recipe_id=recipe_id, recipe=recipe, title='Delete Recipe')
+
+	elif request.method == 'POST':
+		recipe_id = request.form.get('recipe-id')
+
+		if recipe_id is None:
+			flash("Recipe ID cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		con, cur = get_db()
+		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
+		recipe = res.fetchone()
+		if recipe is None:
+			flash(f"Recipe with ID {recipe_id} not found", 'error')
+			return redirect(url_for('index'))
+		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
+		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
+		cur.execute('DELETE FROM recipes WHERE id=?', (recipe_id,))
+		con.commit()
+
+		return redirect(url_for('profile'))
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if request.method == 'GET':
@@ -119,17 +200,17 @@ def login():
 	
 	elif request.method == 'POST':
 		con, cur = get_db()
-		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form['username'],))
+		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
 		if user is None:
 			flash("Username does not exist", 'error')
 			return redirect(url_for('login'))
 
 		hasher = hashlib.sha512()
-		hasher.update(bytes(request.form['password'], 'ascii'))
+		hasher.update(bytes(request.form.get('password'), 'ascii'))
 		passhash = hasher.hexdigest()
 
-		if passhash != user['passhash']:
+		if passhash != user.get('passhash'):
 			flash("Incorrect password", 'error')
 			return redirect(url_for('login'))
 		
@@ -140,7 +221,7 @@ def login():
 			if len(res.fetchall()) == 0:
 				is_new_session_id = True
 		
-		user_id = user['id']
+		user_id = user.get('id')
 
 		cur.execute('DELETE FROM sessions WHERE user_id=?', (user_id,))
 		cur.execute('INSERT INTO sessions (session_id, user_id, created) VALUES (?, ?, ?)', (session_id, user_id, int(time.time())))
@@ -156,25 +237,33 @@ def register():
 		return render_template('register.html', title='Register')
 	
 	elif request.method == 'POST':
-		if request.form['password'] != request.form['confirm-password']:
+		if request.form.get('username') == "":
+			flash("Username cannot be empty", 'error')
+			return redirect(url_for('register'))
+
+		if request.form.get('password') == "":
+			flash("Password cannot be empty", 'error')
+			return redirect(url_for('register'))
+
+		if request.form.get('password') != request.form.get('confirm-password'):
 			flash("Passwords do not match", 'error')
-			return redirect(url_for('login'))
+			return redirect(url_for('register'))
 		
 		con, cur = get_db()
-		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form['username'],))
+		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
 		if user is not None:
 			flash("Username already exists", 'error')
-			return redirect(url_for('login'))
+			return redirect(url_for('register'))
 
 		hasher = hashlib.sha512()
-		hasher.update(bytes(request.form['password'], 'ascii'))
+		hasher.update(bytes(request.form.get('password'), 'ascii'))
 		passhash = hasher.hexdigest()
 		
-		cur.execute('INSERT INTO users (username, passhash) VALUES (?, ?)', (request.form['username'], passhash))
+		cur.execute('INSERT INTO users (username, passhash) VALUES (?, ?)', (request.form.get('username'), passhash))
 		con.commit()
 
-		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form['username'],))
+		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
 		
 		is_new_session_id = False
@@ -183,7 +272,7 @@ def register():
 			res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (session_id,))
 			if len(res.fetchall()) == 0:
 				is_new_session_id = True
-		user_id = user['id']
+		user_id = user.get('id')
 
 		cur.execute('INSERT INTO sessions (session_id, user_id, created) VALUES (?, ?, ?)', (session_id, user_id, int(time.time())))
 		con.commit()

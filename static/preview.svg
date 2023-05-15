@@ -26,8 +26,8 @@
      showgrid="false"
      showguides="true"
      inkscape:zoom="0.77593294"
-     inkscape:cx="498.11006"
-     inkscape:cy="290.6179"
+     inkscape:cx="499.39883"
+     inkscape:cy="291.90667"
      inkscape:window-width="1904"
      inkscape:window-height="1044"
      inkscape:window-x="7"
@@ -44,16 +44,24 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="fill:#202020;stroke-width:1;stroke-linecap:square"
+       id="rect342"
+       width="317.5"
+       height="166.6875"
+       x="0"
+       y="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:135.467px;font-family:Roboto;-inkscape-font-specification:'Roboto,  weight=250';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#dfdfdf;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
-       x="17.164848"
-       y="131.49791"
-       id="text8056"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:144.585px;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#dfdfdf;fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:1.06731;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+       x="14.489837"
+       y="141.63783"
+       id="text8056"
+       transform="scale(1.0827732,0.92355445)"><tspan
          sodipodi:role="line"
          id="tspan8054"
-         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:135.467px;font-family:Roboto;-inkscape-font-specification:'Roboto, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#dfdfdf;fill-opacity:1;fill-rule:nonzero;stroke:#dfdfdf;stroke-width:1;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
-         x="17.164848"
-         y="131.49791">RML</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:300;font-stretch:normal;font-size:144.585px;font-family:'Roboto Mono';-inkscape-font-specification:'Roboto Mono, Light';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#dfdfdf;fill-opacity:1;fill-rule:nonzero;stroke:#dfdfdf;stroke-width:1.06731;stroke-linecap:square;stroke-linejoin:miter;stroke-dasharray:none;stroke-opacity:1;paint-order:normal"
+         x="14.489837"
+         y="141.63783">RML</tspan></text>
   </g>
 </svg>

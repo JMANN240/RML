@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block body %}
+<main>
+    <form method="post">
+        <h1>Delete Recipe</h1>
+        <h2>Are you sure you want to delete this recipe?</h2>
+        <input type="hidden" name="recipe-id" value="{{recipe_id}}" required>
+        <input type="text" name="recipe-name" placeholder="Recipe name" value="{{recipe['name']}}" readonly required>
+        <input type="submit" value="Delete" class="clickable">
+    </form>
+</main>
+{% endblock %}
