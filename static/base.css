@@ -1,0 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond&family=Roboto:wght@100;400;700&display=swap');
+
+:root {
+	--fg: #dfdfdf;
+	--bg: #202020;
+	--fg-darker: #9f9f9f;
+	--bg-lighter: #303030;
+	--bg-darker: #101010;
+	--danger: #351414;
+}
+
+* {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	display: flex;
+	flex-direction: column;
+	width: 100vw;
+	min-height: 100svh;
+	margin: 0;
+	padding: 0;
+	color: var(--fg);
+	background-color: var(--bg);
+}
+
+main {
+	flex-grow: 1;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+header {
+	padding: 1rem;
+	background-color: var(--bg-darker);
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.links {
+	display: flex;
+	align-items: center;
+}
+
+.links > span {
+    width: 1px;
+    height: 1.25em;
+	margin: 0 1rem;
+    background-color: var(--fg);
+}
+
+main {
+	font-size: 1.25rem;
+	margin: 1rem;
+	padding: 1rem;
+	border-radius: 1rem;
+	background-color: var(--bg-darker);
+	align-self: center;
+	width: min(60ch, 80%);
+	filter: drop-shadow(0 0.5rem 1rem black)
+}
+
+footer {
+	padding: 1rem;
+	color: var(--fg-darker);
+}
+
+ul {
+	list-style: circle inside;
+}
+
+ol {
+	list-style: decimal inside;
+}
+
+form {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+input[type=text], input[type=password], input[type=submit] {
+	font-size: 1.25rem;
+	color: var(--fg);
+	background-color: var(--bg);
+	margin: 0.5rem 0;
+	padding: 0.5rem;
+	border: 1px solid var(--fg);
+	border-radius: 0.5rem;
+}
+
+::placeholder {
+	color: var(--fg-darker);
+	opacity: 1;
+}
+
+.popup-container {
+	z-index: 1;
+	position: fixed;
+	inset: 0;
+	padding: 2rem 1rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	pointer-events: none;
+}
+
+div.popup {
+	font-size: 1.25rem;
+	margin: 0.5rem;
+	padding: 1rem;
+	border-radius: 1rem;
+	will-change: opacity, transform;
+	opacity: 0;
+	animation-delay: calc(var(--delay) * 1s);
+	animation-fill-mode: forwards;
+	animation-name: fade_up;
+	animation-duration: 4s;
+}
+
+div.popup.message {
+	background-color: var(--bg-lighter);
+}
+
+div.popup.error {
+	background-color: var(--danger);
+}
+
+@keyframes fade_up {
+	0% {
+		transform: translateY(2rem);
+		opacity: 0;
+	}
+
+	20% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	80% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(-2rem);
+		opacity: 0;
+	}
+}
+
+.clickable {
+	transition-duration: 0.2s;
+}
+
+.clickable:hover {
+	transform: scale(1.05);
+}

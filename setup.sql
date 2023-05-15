@@ -1,0 +1,11 @@
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    username TEXT UNIQUE NOT NULL,
+    passhash TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+	session_id TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	created INTEGER NOT NULL
+)

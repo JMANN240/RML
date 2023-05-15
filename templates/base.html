@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    {% block head %}
+    <link rel="stylesheet" href="/static/base.css" type="text/css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RML - {% block title %}{% endblock %}</title>
+    {% endblock %}
+</head>
+<body>
+    <div class="popup-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="popup {{category}}" style="--delay: {{0.25 * loop.index0}};">
+                        <p>{{message}}</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+    {% block header %}
+    <header>
+        <div>
+            <a href="/"><h1>RML</h1></a>
+        </div>
+        <div class="links">
+            {% if user_id is none %}
+                <a href="/login">Login</a>
+                <span></span>
+                <a href="/register">Register</a>
+            {% else %}
+                <a href="/profile">Profile</a>
+                <span></span>
+                <a href="/logout">Logout</a>
+            {% endif %}
+        </div>
+    </header>
+    {% endblock %}
+    <main>
+        {% block body %}{% endblock %}
+    </main>
+    {% block footer %}
+    <footer>
+        <p>&copy; 2023 RML</p>
+    </footer>
+    {% endblock %}
+</body>
+
+</html>
