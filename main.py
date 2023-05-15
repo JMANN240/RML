@@ -24,7 +24,7 @@ def index():
 	con, cur = get_db()
 	res = cur.execute('SELECT * FROM recipes ORDER BY id DESC LIMIT 10')
 	recipes = res.fetchall()
-	return render_template('index.html', recipes=recipes)
+	return render_template('index.html', recipes=recipes, title='Home')
 
 @app.route('/profile')
 @requires_login
@@ -34,7 +34,7 @@ def profile():
 	user = res.fetchone()
 	res = cur.execute('SELECT * FROM recipes WHERE user_id=?', (request.user_id,))
 	user_recipes = res.fetchall()
-	return render_template('profile.html', user=user, user_recipes=user_recipes)
+	return render_template('profile.html', user=user, user_recipes=user_recipes, title='Profile')
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -42,7 +42,7 @@ def search():
 		con, cur = get_db()
 		term = request.args.get('search')
 		results = search_algorithm.search(cur, term)
-		return render_template('search.html', results=results, term=term)
+		return render_template('search.html', results=results, term=term, title='Search')
 	
 	elif request.method == 'POST':
 		return redirect(url_for('search', search=request.form['term']))
@@ -56,13 +56,13 @@ def recipe(recipe_id):
 	ingredients = res.fetchall()
 	res = cur.execute('SELECT * FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 	steps = res.fetchall()
-	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps)
+	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe['name'])
 
 @app.route('/recipe/create', methods=['GET', 'POST'])
 @requires_login
 def recipe_create():
 	if request.method == 'GET':
-		return render_template('recipe_create.html')
+		return render_template('recipe_create.html', title='Create Recipe')
 
 	elif request.method == 'POST':
 		user_id = request.user_id
@@ -93,7 +93,7 @@ def recipe_edit(recipe_id):
 		res = cur.execute('SELECT * FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 		steps = res.fetchall()
 		steps = '\n'.join([step['step'] for step in steps])
-		return render_template('recipe_edit.html', recipe_id=recipe_id, recipe=recipe, ingredients=ingredients, steps=steps)
+		return render_template('recipe_edit.html', recipe_id=recipe_id, recipe=recipe, ingredients=ingredients, steps=steps, title='Edit Recipe')
 
 	elif request.method == 'POST':
 		user_id = request.user_id
@@ -115,7 +115,7 @@ def recipe_edit(recipe_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
 	if request.method == 'GET':
-		return render_template('login.html')
+		return render_template('login.html', title='Login')
 	
 	elif request.method == 'POST':
 		con, cur = get_db()
@@ -153,7 +153,7 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
 	if request.method == 'GET':
-		return render_template('register.html')
+		return render_template('register.html', title='Register')
 	
 	elif request.method == 'POST':
 		if request.form['password'] != request.form['confirm-password']:
