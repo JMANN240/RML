@@ -47,7 +47,13 @@ def login():
 			flash("Incorrect password", 'error')
 			return redirect(url_for('login'))
 		
-		session_id = os.urandom(64).hex()
+		is_new_session_id = False
+		while not is_new_session_id:
+			session_id = os.urandom(64).hex()
+			res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (session_id,))
+			if len(res.fetchall()) == 0:
+				is_new_session_id = True
+		
 		user_id = user['id']
 
 		cur.execute('DELETE FROM sessions WHERE user_id=?', (user_id,))
@@ -85,7 +91,12 @@ def register():
 		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form['username'],))
 		user = res.fetchone()
 		
-		session_id = os.urandom(64).hex()
+		is_new_session_id = False
+		while not is_new_session_id:
+			session_id = os.urandom(64).hex()
+			res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (session_id,))
+			if len(res.fetchall()) == 0:
+				is_new_session_id = True
 		user_id = user['id']
 
 		cur.execute('INSERT INTO sessions (session_id, user_id, created) VALUES (?, ?, ?)', (session_id, user_id, int(time.time())))
