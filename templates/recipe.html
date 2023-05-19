@@ -23,7 +23,7 @@
                 Favorite
             {% endif%}
         </a>
-        {% if recipe['user_id'] == user_id %}
+        {% if recipe['user_id'] == user_id or user_authority > 0 %}
             <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-right: 1rem;" class="button clickable">Edit Recipe</a>
             <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
         {% endif %}

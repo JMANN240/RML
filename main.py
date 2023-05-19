@@ -11,13 +11,13 @@ app.secret_key = os.urandom(64)
 @app.context_processor
 def inject_user():
 	if request.cookies.get('session') is None:
-		return dict(user_id=None)
+		return dict(user_id=None, user_authority=0)
 	con, cur = get_db()
-	res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (request.cookies.get('session'),))
+	res = cur.execute('SELECT * FROM sessions INNER JOIN users ON sessions.user_id=users.id WHERE session_id=?', (request.cookies.get('session'),))
 	session = res.fetchone()
 	if session is None:
-		return dict(user_id=None)
-	return dict(user_id=session.get('user_id'))
+		return dict(user_id=None, user_authority=0)
+	return dict(user_id=session.get('user_id'), user_authority=session.get('authority'))
 
 @app.route('/')
 def index():
@@ -148,6 +148,9 @@ def recipe_edit(recipe_id):
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
 			return redirect(url_for('index'))
+		if recipe['user_id'] != request.user_id and request.user_authority == 0:
+			flash(f"You do not have permission to edit recipe with ID {recipe_id}.", 'error')
+			return redirect(url_for('index'))
 		res = cur.execute('SELECT * FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		ingredients = res.fetchall()
 		ingredients = '\n'.join([ingredient.get('ingredient') for ingredient in ingredients])
@@ -157,7 +160,6 @@ def recipe_edit(recipe_id):
 		return render_template('recipe_edit.html', recipe_id=recipe_id, recipe=recipe, ingredients=ingredients, steps=steps, title='Edit Recipe')
 
 	elif request.method == 'POST':
-		request.user_id
 		recipe_id = request.form.get('recipe-id')
 		recipe_name = request.form.get('recipe-name')
 		result = request.form.get('result')
@@ -193,6 +195,10 @@ def recipe_edit(recipe_id):
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
 			return redirect(url_for('index'))
+		if recipe['user_id'] != request.user_id and request.user_authority == 0:
+			flash(f"You do not have permission to edit recipe with ID {recipe_id}.", 'error')
+			return redirect(url_for('index'))
+		
 		cur.execute('UPDATE recipes SET name=?, result=? WHERE id=?', (recipe_name, result, recipe_id))
 		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
@@ -212,6 +218,9 @@ def recipe_delete(recipe_id):
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
 			return redirect(url_for('index'))
+		if recipe['user_id'] != request.user_id and request.user_authority == 0:
+			flash(f"You do not have permission to edit recipe with ID {recipe_id}.", 'error')
+			return redirect(url_for('index'))
 		return render_template('recipe_delete.html', recipe_id=recipe_id, recipe=recipe, title='Delete Recipe')
 
 	elif request.method == 'POST':
@@ -226,6 +235,9 @@ def recipe_delete(recipe_id):
 		recipe = res.fetchone()
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
+			return redirect(url_for('index'))
+		if recipe['user_id'] != request.user_id and request.user_authority == 0:
+			flash(f"You do not have permission to edit recipe with ID {recipe_id}.", 'error')
 			return redirect(url_for('index'))
 		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))

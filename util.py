@@ -20,10 +20,11 @@ def requires_login(f):
 		if request.cookies.get('session') is None:
 			return redirect(url_for('login'))
 		con, cur = get_db()
-		res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (request.cookies.get('session'),))
+		res = cur.execute('SELECT * FROM sessions INNER JOIN users ON sessions.user_id=users.id WHERE session_id=?', (request.cookies.get('session'),))
 		session = res.fetchone()
 		if session is None:
 			return redirect(url_for('login'))
 		setattr(request, 'user_id', session['user_id'])
+		setattr(request, 'user_authority', session['authority'])
 		return f(*args, **kwargs)
 	return inner
