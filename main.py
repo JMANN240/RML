@@ -45,7 +45,7 @@ def profile(profile_user_id):
 	res = cur.execute('SELECT * FROM user_favorites INNER JOIN recipes ON recipes.id == user_favorites.recipe_id WHERE user_favorites.user_id=? ORDER BY name', (profile_user_id,))
 	favorite_recipes = res.fetchall()
 
-	return render_template('profile.html', profile_user=profile_user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title='Profile', logged_in_user_id=logged_in_user_id)
+	return render_template('profile.html', profile_user=profile_user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title=f"{profile_user['username']}'s Profile", logged_in_user_id=logged_in_user_id)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
