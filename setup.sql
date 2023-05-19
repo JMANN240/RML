@@ -28,3 +28,5 @@ CREATE TABLE IF NOT EXISTS recipe_steps (
 	step TEXT NOT NULL,
 	FOREIGN KEY (recipe_id) REFERENCES recipes (id)
 );
+
+ALTER TABLE recipes ADD COLUMN result TEXT NOT NULL DEFAULT "";

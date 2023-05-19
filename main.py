@@ -74,18 +74,23 @@ def recipe_create():
 	elif request.method == 'POST':
 		user_id = request.user_id
 		recipe_name = request.form.get('recipe-name')
+		result = request.form.get('result')
 		recipe_ingredients_pre = request.form.get('ingredients')
 		recipe_steps_pre = request.form.get('steps')
 
-		if recipe_name is None:
+		if recipe_name is None or recipe_name == '':
 			flash("Recipe name cannot be empty", 'error')
 			return redirect(url_for('recipe_create'))
 
-		if recipe_ingredients_pre is None:
+		if result is None or result == '':
+			flash("Result cannot be empty", 'error')
+			return redirect(url_for('recipe_create'))
+
+		if recipe_ingredients_pre is None or recipe_ingredients_pre == []:
 			flash("Recipe ingredients cannot be empty", 'error')
 			return redirect(url_for('recipe_create'))
 
-		if recipe_steps_pre is None:
+		if recipe_steps_pre is None or recipe_steps_pre == []:
 			flash("Recipe steps cannot be empty", 'error')
 			return redirect(url_for('recipe_create'))
 
@@ -93,7 +98,7 @@ def recipe_create():
 		recipe_steps = recipe_steps_pre.split('\n')
 
 		con, cur = get_db()
-		cur.execute('INSERT INTO recipes (name, user_id) VALUES (?, ?)', (recipe_name, user_id))
+		cur.execute('INSERT INTO recipes (name, user_id, result) VALUES (?, ?, ?)', (recipe_name, user_id, result))
 		res = cur.execute("SELECT * FROM recipes ORDER BY id DESC LIMIT 1")
 		recipe = res.fetchone()
 		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe.get('id'), ingredient) for ingredient in recipe_ingredients])
@@ -121,25 +126,30 @@ def recipe_edit(recipe_id):
 		return render_template('recipe_edit.html', recipe_id=recipe_id, recipe=recipe, ingredients=ingredients, steps=steps, title='Edit Recipe')
 
 	elif request.method == 'POST':
-		user_id = request.user_id
+		request.user_id
 		recipe_id = request.form.get('recipe-id')
 		recipe_name = request.form.get('recipe-name')
+		result = request.form.get('result')
 		recipe_ingredients_pre = request.form.get('ingredients')
 		recipe_steps_pre = request.form.get('steps')
 
-		if recipe_id is None:
+		if recipe_id is None or recipe_id == '':
 			flash("Recipe ID cannot be empty", 'error')
 			return redirect(url_for('recipe_edit'))
 
-		if recipe_name is None:
+		if recipe_name is None or recipe_name == '':
 			flash("Recipe name cannot be empty", 'error')
 			return redirect(url_for('recipe_edit'))
 
-		if recipe_ingredients_pre is None:
+		if result is None or result == '':
+			flash("Result cannot be empty", 'error')
+			return redirect(url_for('recipe_edit'))
+
+		if recipe_ingredients_pre is None or recipe_ingredients_pre == []:
 			flash("Recipe ingredients cannot be empty", 'error')
 			return redirect(url_for('recipe_edit'))
 
-		if recipe_steps_pre is None:
+		if recipe_steps_pre is None or recipe_steps_pre == []:
 			flash("Recipe steps cannot be empty", 'error')
 			return redirect(url_for('recipe_edit'))
 
@@ -152,7 +162,7 @@ def recipe_edit(recipe_id):
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
 			return redirect(url_for('index'))
-		cur.execute('UPDATE recipes SET name=? WHERE id=?', (recipe_name, recipe_id))
+		cur.execute('UPDATE recipes SET name=?, result=? WHERE id=?', (recipe_name, result, recipe_id))
 		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe_id, ingredient) for ingredient in recipe_ingredients])

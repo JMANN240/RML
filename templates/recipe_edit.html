@@ -5,6 +5,7 @@
         <h1>Edit Recipe</h1>
         <input type="hidden" name="recipe-id" value="{{recipe_id}}" required>
         <input type="text" name="recipe-name" placeholder="Recipe name" value="{{recipe['name']}}" required>
+        <input type="text" name="result" placeholder="Result" value="{{recipe['result']}}" required>
         <textarea name="ingredients" placeholder="Newline separated ingredients">{{ingredients}}</textarea>
         <textarea name="steps" placeholder="Newline separated steps">{{steps}}</textarea>
         <input type="submit" value="Update" class="clickable">
