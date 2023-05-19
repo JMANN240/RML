@@ -26,18 +26,26 @@ def index():
 	recipes = res.fetchall()
 	return render_template('index.html', recipes=recipes, title='Home')
 
-@app.route('/profile')
-@requires_login
-def profile():
+@app.route('/profile/<profile_user_id>')
+def profile(profile_user_id):
 	con, cur = get_db()
-	res = cur.execute('SELECT * FROM users WHERE id=?', (request.user_id,))
-	user = res.fetchone()
-	res = cur.execute('SELECT * FROM recipes WHERE user_id=? ORDER BY id DESC', (request.user_id,))
+	if request.cookies.get('session') is None:
+		logged_in_user_id = None
+	else:
+		res = cur.execute('SELECT * FROM sessions INNER JOIN users ON sessions.user_id=users.id WHERE session_id=?', (request.cookies.get('session'),))
+		session = res.fetchone()
+		if session is None:
+			logged_in_user_id = None
+		else:
+			logged_in_user_id = session.get('user_id')
+	res = cur.execute('SELECT * FROM users WHERE id=?', (profile_user_id,))
+	profile_user = res.fetchone()
+	res = cur.execute('SELECT * FROM recipes WHERE user_id=? ORDER BY id DESC', (profile_user_id,))
 	user_recipes = res.fetchall()
-	res = cur.execute('SELECT * FROM user_favorites INNER JOIN recipes ON recipes.id == user_favorites.recipe_id WHERE user_favorites.user_id=? ORDER BY name', (request.user_id,))
+	res = cur.execute('SELECT * FROM user_favorites INNER JOIN recipes ON recipes.id == user_favorites.recipe_id WHERE user_favorites.user_id=? ORDER BY name', (profile_user_id,))
 	favorite_recipes = res.fetchall()
 
-	return render_template('profile.html', user=user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title='Profile')
+	return render_template('profile.html', profile_user=profile_user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title='Profile', logged_in_user_id=logged_in_user_id)
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -80,7 +88,10 @@ def recipe(recipe_id):
 			favorite = res.fetchone()
 			is_user_favorite = favorite is not None
 	
-	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'), is_user_favorite=is_user_favorite)
+	res = cur.execute('SELECT * FROM users WHERE id=?', (recipe['user_id'],))
+	author = res.fetchone()
+	
+	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'), is_user_favorite=is_user_favorite, author=author)
 
 @app.route('/recipe/<recipe_id>/favorite')
 @requires_login
@@ -233,6 +244,7 @@ def recipe_delete(recipe_id):
 		con, cur = get_db()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
+		recipe_user_id = recipe['user_id']
 		if recipe is None:
 			flash(f"Recipe with ID {recipe_id} not found", 'error')
 			return redirect(url_for('index'))
@@ -245,7 +257,7 @@ def recipe_delete(recipe_id):
 		cur.execute('DELETE FROM recipes WHERE id=?', (recipe_id,))
 		con.commit()
 
-		return redirect(url_for('profile'))
+		return redirect(url_for('profile', profile_user_id=recipe_user_id))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
