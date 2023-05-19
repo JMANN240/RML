@@ -32,8 +32,9 @@ def profile():
 	con, cur = get_db()
 	res = cur.execute('SELECT * FROM users WHERE id=?', (request.user_id,))
 	user = res.fetchone()
-	res = cur.execute('SELECT * FROM recipes WHERE user_id=?', (request.user_id,))
+	res = cur.execute('SELECT * FROM recipes WHERE user_id=? ORDER BY id DESC', (request.user_id,))
 	user_recipes = res.fetchall()
+
 	return render_template('profile.html', user=user, user_recipes=user_recipes, title='Profile')
 
 @app.route('/search', methods=['GET', 'POST'])
