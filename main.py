@@ -229,6 +229,7 @@ def recipe_delete(recipe_id):
 			return redirect(url_for('index'))
 		cur.execute('DELETE FROM recipe_ingredients WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
+		cur.execute('DELETE FROM user_favorites WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipes WHERE id=?', (recipe_id,))
 		con.commit()
 
