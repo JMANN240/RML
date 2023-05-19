@@ -15,11 +15,18 @@
             <li>{{step['step']}}</li>
         {% endfor %}
     </ol>
-    {% if recipe['user_id'] == user_id %}
     <div style="display: flex; margin-top: 2rem;">
-        <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-right: 1rem;" class="button clickable">Edit Recipe</a>
-        <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
+        <a href="{{url_for('toggle_recipe_favorite', recipe_id=recipe['id'])}}" style="margin-right: 1rem;" class="button clickable">
+            {% if is_user_favorite %}
+                Unfavorite
+            {% else %}
+                Favorite
+            {% endif%}
+        </a>
+        {% if recipe['user_id'] == user_id %}
+            <a href="{{url_for('recipe_edit', recipe_id=recipe['id'])}}" style="margin-right: 1rem;" class="button clickable">Edit Recipe</a>
+            <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
+        {% endif %}
     </div>
-    {% endif %}
 </main>
 {% endblock %}

@@ -34,8 +34,10 @@ def profile():
 	user = res.fetchone()
 	res = cur.execute('SELECT * FROM recipes WHERE user_id=? ORDER BY id DESC', (request.user_id,))
 	user_recipes = res.fetchall()
+	res = cur.execute('SELECT * FROM user_favorites INNER JOIN recipes ON recipes.id == user_favorites.recipe_id WHERE user_favorites.user_id=? ORDER BY name', (request.user_id,))
+	favorite_recipes = res.fetchall()
 
-	return render_template('profile.html', user=user, user_recipes=user_recipes, title='Profile')
+	return render_template('profile.html', user=user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title='Profile')
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
@@ -64,7 +66,35 @@ def recipe(recipe_id):
 	ingredients = res.fetchall()
 	res = cur.execute('SELECT * FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 	steps = res.fetchall()
-	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'))
+
+	if request.cookies.get('session') is None:
+		is_user_favorite = False
+	else:
+		res = cur.execute('SELECT * FROM sessions WHERE session_id=?', (request.cookies.get('session'),))
+		session = res.fetchone()
+		if session is None:
+			is_user_favorite = False
+		else:
+			user_id = session.get('user_id')
+			res = cur.execute('SELECT * FROM user_favorites WHERE recipe_id=? AND user_id=?', (recipe_id, user_id))
+			favorite = res.fetchone()
+			is_user_favorite = favorite is not None
+	
+	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'), is_user_favorite=is_user_favorite)
+
+@app.route('/recipe/<recipe_id>/favorite')
+@requires_login
+def toggle_recipe_favorite(recipe_id):
+	user_id = request.user_id
+	con, cur = get_db()
+	res = cur.execute('SELECT * FROM user_favorites WHERE recipe_id=? AND user_id=?', (recipe_id, user_id))
+	favorite = res.fetchone()
+	if favorite is None:
+		cur.execute('INSERT INTO user_favorites (recipe_id, user_id) VALUES (?, ?)', (recipe_id, user_id))
+	else:
+		cur.execute('DELETE FROM user_favorites WHERE recipe_id=? AND user_id=?', (recipe_id, user_id))
+	con.commit()
+	return redirect(url_for('recipe', recipe_id=recipe_id))
 
 @app.route('/recipe/create', methods=['GET', 'POST'])
 @requires_login

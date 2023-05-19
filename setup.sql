@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS recipes (
 	id INTEGER PRIMARY KEY,
 	name TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
+	result TEXT NOT NULL,
 	FOREIGN KEY (user_id) REFERENCES users (id)
 );
 
@@ -29,4 +30,9 @@ CREATE TABLE IF NOT EXISTS recipe_steps (
 	FOREIGN KEY (recipe_id) REFERENCES recipes (id)
 );
 
-ALTER TABLE recipes ADD COLUMN result TEXT NOT NULL DEFAULT "";
+CREATE TABLE IF NOT EXISTS user_favorites (
+	user_id INTEGER NOT NULL,
+	recipe_id INTEGER NOT NULL,
+	FOREIGN KEY (user_id) REFERENCES users (id),
+	FOREIGN KEY (recipe_id) REFERENCES recipes (id)
+);
