@@ -33,6 +33,7 @@
             <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
         {% endif %}
     </div>
+	{% if has_additional_info %}
 	<p id="additional-information" class="clickable" style="margin-top: 2rem; margin-bottom: 1rem;">
 		<span id="dropdown-arrow">▶</span> Additional Information
 	</p>
@@ -68,5 +69,6 @@
 			<p>{{recipe['sodium']}}mg Sodium</p>
 		{% endif %}
 	</div>
+	{% endif %}
 </main>
 {% endblock %}

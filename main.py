@@ -90,8 +90,10 @@ def recipe(recipe_id):
 	
 	res = cur.execute('SELECT * FROM users WHERE id=?', (recipe['user_id'],))
 	author = res.fetchone()
+
+	has_additional_info = any([info != '' for info in (recipe['calories'], recipe['protein'], recipe['total_fat'], recipe['saturated_fat'], recipe['trans_fat'], recipe['cholesterol'], recipe['carbohydrates'], recipe['sugar'], recipe['fiber'], recipe['sodium'])])
 	
-	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'), is_user_favorite=is_user_favorite, author=author)
+	return render_template('recipe.html', recipe=recipe, ingredients=ingredients, steps=steps, title=recipe.get('name'), is_user_favorite=is_user_favorite, author=author, has_additional_info=has_additional_info)
 
 @app.route('/recipe/<recipe_id>/favorite')
 @requires_login
