@@ -1,13 +1,43 @@
 {% extends "base.html" %}
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/static/recipe.css" type="text/css" />
+<script src="/static/recipe.js" defer></script>
+{% endblock%}
 {% block body %}
 <main>
-    <form method="post">
-        <h1>Create Recipe</h1>
-        <input type="text" name="recipe-name" placeholder="Recipe name" required>
-        <input type="text" name="result" placeholder="Result" required>
-        <textarea name="ingredients" placeholder="Newline separated ingredients" required></textarea>
-        <textarea name="steps" placeholder="Newline separated steps" required></textarea>
-        <input type="submit" value="Create" class="clickable">
-    </form>
+	<form method="post">
+		<h1>Create Recipe</h1>
+		<input type="text" name="recipe-name" placeholder="Recipe name" required>
+		<input type="text" name="result" placeholder="Result" required>
+		<textarea name="ingredients" placeholder="Newline separated ingredients" required></textarea>
+		<textarea name="steps" placeholder="Newline separated steps" required></textarea>
+		<p id="additional-information" class="clickable">
+			<span id="dropdown-arrow">▶</span> Additional Information
+		</p>
+		<div id="additional-inputs" data-collapsed="true" style="height: 0;">
+			<label for="calories">Calories (kcal)</label>
+			<input type="text" name="calories">
+			<label for="protein">Protein (g)</label>
+			<input type="text" name="protein">
+			<label for="total-fat">Total Fat (g)</label>
+			<input type="text" name="total-fat">
+			<label for="saturated-fat">Saturated Fat (g)</label>
+			<input type="text" name="saturated-fat">
+			<label for="trans-fat">Trans Fat (g)</label>
+			<input type="text" name="trans-fat">
+			<label for="cholesterol">Cholesterol (mg)</label>
+			<input type="text" name="cholesterol">
+			<label for="carbohydrates">Carbohydrates (g)</label>
+			<input type="text" name="carbohydrates">
+			<label for="sugar">Sugar (g)</label>
+			<input type="text" name="sugar">
+			<label for="fiber">Fiber (g)</label>
+			<input type="text" name="fiber">
+			<label for="sodium">Sodium (mg)</label>
+			<input type="text" name="sodium">
+		</div>
+		<input type="submit" value="Create" class="clickable">
+	</form>
 </main>
 {% endblock %}

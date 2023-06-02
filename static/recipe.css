@@ -1,0 +1,42 @@
+#additional-information {
+	user-select: none;
+}
+
+#additional-inputs {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	column-gap: 1em;
+	overflow: hidden;
+	transition-duration: 0.5s;
+}
+
+#additional-inputs > label {
+	justify-self: end;
+	align-self: center;
+}
+
+#additional-inputs > input {
+	justify-self: start;
+	align-self: center;
+}
+
+@media only screen and (max-width: 1000px) {
+	#additional-inputs {
+		grid-template-columns: 1fr;
+	}
+
+	#additional-inputs > label {
+		justify-self: center;
+		align-self: end;
+	}
+	
+	#additional-inputs > input {
+		justify-self: center;
+		align-self: start;
+	}
+}
+
+#dropdown-arrow {
+	display: inline-block;
+	transition-duration: 0.2s;
+}

@@ -16,6 +16,16 @@ CREATE TABLE IF NOT EXISTS recipes (
 	name TEXT NOT NULL,
 	user_id INTEGER NOT NULL,
 	result TEXT NOT NULL,
+	calories INTEGER DEFAULT '',
+	protein INTEGER DEFAULT '',
+	total_fat INTEGER DEFAULT '',
+	saturated_fat INTEGER DEFAULT '',
+	trans_fat INTEGER DEFAULT '',
+	cholesterol INTEGER DEFAULT '',
+	carbohydrates INTEGER DEFAULT '',
+	sugar INTEGER DEFAULT '',
+	fiber INTEGER DEFAULT '',
+	sodium INTEGER DEFAULT '',
 	FOREIGN KEY (user_id) REFERENCES users (id)
 );
 

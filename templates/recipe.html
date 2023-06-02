@@ -1,4 +1,9 @@
 {% extends "base.html" %}
+{% block head %}
+{{super()}}
+<link rel="stylesheet" href="/static/recipe.css" type="text/css" />
+<script src="/static/recipe.js" defer></script>
+{% endblock%}
 {% block body %}
 <main class="static">
     <h1 style="margin-bottom: 1rem;">{{recipe['name']}}<span style="color: var(--fg-darker); font-size: 1rem; margin-left: 1rem;">by <a href="/profile/{{author['id']}}" class="clickable">{{author['username']}}</a></span></h1>
@@ -28,5 +33,40 @@
             <a href="{{url_for('recipe_delete', recipe_id=recipe['id'])}}" class="button clickable">Delete Recipe</a>
         {% endif %}
     </div>
+	<p id="additional-information" class="clickable" style="margin-top: 2rem; margin-bottom: 1rem;">
+		<span id="dropdown-arrow">▶</span> Additional Information
+	</p>
+	<div id="additional-inputs" data-collapsed="true" style="height: 0;">
+		{% if recipe['calories'] != '' %}
+			<p>{{recipe['calories']}}kcal Calories</p>
+		{% endif %}
+		{% if recipe['protein'] != '' %}
+			<p>{{recipe['protein']}}g Protein</p>
+		{% endif %}
+		{% if recipe['total_fat'] != '' %}
+			<p>{{recipe['total_fat']}}g Total_fat</p>
+		{% endif %}
+		{% if recipe['saturated_fat'] != '' %}
+			<p>{{recipe['saturated_fat']}}g Saturated_fat</p>
+		{% endif %}
+		{% if recipe['trans_fat'] != '' %}
+			<p>{{recipe['trans_fat']}}g Trans_fat</p>
+		{% endif %}
+		{% if recipe['cholesterol'] != '' %}
+			<p>{{recipe['cholesterol']}}mg Cholesterol</p>
+		{% endif %}
+		{% if recipe['carbohydrates'] != '' %}
+			<p>{{recipe['carbohydrates']}}g Carbohydrates</p>
+		{% endif %}
+		{% if recipe['sugar'] != '' %}
+			<p>{{recipe['sugar']}}g Sugar</p>
+		{% endif %}
+		{% if recipe['fiber'] != '' %}
+			<p>{{recipe['fiber']}}g Fiber</p>
+		{% endif %}
+		{% if recipe['sodium'] != '' %}
+			<p>{{recipe['sodium']}}mg Sodium</p>
+		{% endif %}
+	</div>
 </main>
 {% endblock %}
