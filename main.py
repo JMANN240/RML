@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, make_response, flash, url_for
 import os
-from util import get_db, requires_login
+from util import requires_login, requires_db
 import hashlib
 import time
 import search as search_algorithm
@@ -12,7 +12,7 @@ app.secret_key = os.urandom(64)
 def inject_user():
 	if request.cookies.get('session') is None:
 		return dict(user_id=None, user_authority=0)
-	con, cur = get_db()
+	cur = request.db.cursor()
 	res = cur.execute('SELECT * FROM sessions INNER JOIN users ON sessions.user_id=users.id WHERE session_id=?', (request.cookies.get('session'),))
 	session = res.fetchone()
 	if session is None:
@@ -20,15 +20,17 @@ def inject_user():
 	return dict(user_id=session.get('user_id'), user_authority=session.get('authority'))
 
 @app.route('/')
+@requires_db
 def index():
-	con, cur = get_db()
+	cur = request.db.cursor()
 	res = cur.execute('SELECT * FROM recipes ORDER BY id DESC LIMIT 10')
 	recipes = res.fetchall()
 	return render_template('index.html', recipes=recipes, title='Home')
 
 @app.route('/profile/<profile_user_id>')
+@requires_db
 def profile(profile_user_id):
-	con, cur = get_db()
+	cur = request.db.cursor()
 	if request.cookies.get('session') is None:
 		logged_in_user_id = None
 	else:
@@ -48,9 +50,10 @@ def profile(profile_user_id):
 	return render_template('profile.html', profile_user=profile_user, user_recipes=user_recipes, favorite_recipes=favorite_recipes, title=f"{profile_user['username']}'s Profile", logged_in_user_id=logged_in_user_id)
 
 @app.route('/search', methods=['GET', 'POST'])
+@requires_db
 def search():
 	if request.method == 'GET':
-		con, cur = get_db()
+		cur = request.db.cursor()
 		term = request.args.get('search')
 		results = search_algorithm.search(cur, term)
 		return render_template('search.html', results=results, term=term, title='Search')
@@ -63,8 +66,9 @@ def search():
 		return redirect(url_for('search', search=term))
 
 @app.route('/recipe/<recipe_id>')
+@requires_db
 def recipe(recipe_id):
-	con, cur = get_db()
+	cur = request.db.cursor()
 	res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 	recipe = res.fetchone()
 	if recipe is None:
@@ -97,20 +101,22 @@ def recipe(recipe_id):
 
 @app.route('/recipe/<recipe_id>/favorite')
 @requires_login
+@requires_db
 def toggle_recipe_favorite(recipe_id):
 	user_id = request.user_id
-	con, cur = get_db()
+	cur = request.db.cursor()
 	res = cur.execute('SELECT * FROM user_favorites WHERE recipe_id=? AND user_id=?', (recipe_id, user_id))
 	favorite = res.fetchone()
 	if favorite is None:
 		cur.execute('INSERT INTO user_favorites (recipe_id, user_id) VALUES (?, ?)', (recipe_id, user_id))
 	else:
 		cur.execute('DELETE FROM user_favorites WHERE recipe_id=? AND user_id=?', (recipe_id, user_id))
-	con.commit()
+	request.db.commit()
 	return redirect(url_for('recipe', recipe_id=recipe_id))
 
 @app.route('/recipe/create', methods=['GET', 'POST'])
 @requires_login
+@requires_db
 def recipe_create():
 	if request.method == 'GET':
 		return render_template('recipe_create.html', title='Create Recipe')
@@ -152,21 +158,22 @@ def recipe_create():
 		fiber = request.form.get('fiber')
 		sodium = request.form.get('sodium')
 
-		con, cur = get_db()
+		cur = request.db.cursor()
 		cur.execute('INSERT INTO recipes (name, user_id, result, calories, protein, total_fat, saturated_fat, trans_fat, cholesterol, carbohydrates, sugar, fiber, sodium) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)', (recipe_name, user_id, result, calories, protein, total_fat, saturated_fat, trans_fat, cholesterol, carbohydrates, sugar, fiber, sodium))
 		res = cur.execute("SELECT * FROM recipes ORDER BY id DESC LIMIT 1")
 		recipe = res.fetchone()
 		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe.get('id'), ingredient) for ingredient in recipe_ingredients])
 		cur.executemany('INSERT INTO recipe_steps (recipe_id, step) VALUES (?, ?)', [(recipe.get('id'), step) for step in recipe_steps])
-		con.commit()
+		request.db.commit()
 
 		return redirect(url_for('recipe', recipe_id=recipe.get('id')))
 
 @app.route('/recipe/<recipe_id>/edit', methods=['GET', 'POST'])
 @requires_login
+@requires_db
 def recipe_edit(recipe_id):
 	if request.method == 'GET':
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
 		if recipe is None:
@@ -224,7 +231,7 @@ def recipe_edit(recipe_id):
 		fiber = request.form.get('fiber')
 		sodium = request.form.get('sodium')
 
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
 		if recipe is None:
@@ -239,15 +246,16 @@ def recipe_edit(recipe_id):
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 		cur.executemany('INSERT INTO recipe_ingredients (recipe_id, ingredient) VALUES (?, ?)', [(recipe_id, ingredient) for ingredient in recipe_ingredients])
 		cur.executemany('INSERT INTO recipe_steps (recipe_id, step) VALUES (?, ?)', [(recipe_id, step) for step in recipe_steps])
-		con.commit()
+		request.db.commit()
 
 		return redirect(url_for('recipe', recipe_id=recipe_id))
 
 @app.route('/recipe/<recipe_id>/delete', methods=['GET', 'POST'])
 @requires_login
+@requires_db
 def recipe_delete(recipe_id):
 	if request.method == 'GET':
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
 		if recipe is None:
@@ -265,7 +273,7 @@ def recipe_delete(recipe_id):
 			flash("Recipe ID cannot be empty", 'error')
 			return redirect(url_for('recipe_edit'))
 
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM recipes WHERE id=?', (recipe_id,))
 		recipe = res.fetchone()
 		recipe_user_id = recipe['user_id']
@@ -279,17 +287,18 @@ def recipe_delete(recipe_id):
 		cur.execute('DELETE FROM recipe_steps WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM user_favorites WHERE recipe_id=?', (recipe_id,))
 		cur.execute('DELETE FROM recipes WHERE id=?', (recipe_id,))
-		con.commit()
+		request.db.commit()
 
 		return redirect(url_for('profile', profile_user_id=recipe_user_id))
 
 @app.route('/login', methods=['GET', 'POST'])
+@requires_db
 def login():
 	if request.method == 'GET':
 		return render_template('login.html', title='Login')
 	
 	elif request.method == 'POST':
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
 		if user is None:
@@ -315,13 +324,14 @@ def login():
 
 		cur.execute('DELETE FROM sessions WHERE user_id=?', (user_id,))
 		cur.execute('INSERT INTO sessions (session_id, user_id, created) VALUES (?, ?, ?)', (session_id, user_id, int(time.time())))
-		con.commit()
+		request.db.commit()
 		
 		res = make_response(redirect(url_for('index')))
 		res.set_cookie('session', session_id, max_age=60*60*24*365*10)
 		return res
 
 @app.route('/register', methods=['GET', 'POST'])
+@requires_db
 def register():
 	if request.method == 'GET':
 		return render_template('register.html', title='Register')
@@ -339,7 +349,7 @@ def register():
 			flash("Passwords do not match", 'error')
 			return redirect(url_for('register'))
 		
-		con, cur = get_db()
+		cur = request.db.cursor()
 		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
 		if user is not None:
@@ -351,7 +361,7 @@ def register():
 		passhash = hasher.hexdigest()
 		
 		cur.execute('INSERT INTO users (username, passhash) VALUES (?, ?)', (request.form.get('username'), passhash))
-		con.commit()
+		request.db.commit()
 
 		res = cur.execute('SELECT * FROM users WHERE username=?', (request.form.get('username'),))
 		user = res.fetchone()
@@ -365,18 +375,19 @@ def register():
 		user_id = user.get('id')
 
 		cur.execute('INSERT INTO sessions (session_id, user_id, created) VALUES (?, ?, ?)', (session_id, user_id, int(time.time())))
-		con.commit()
+		request.db.commit()
 		
 		res = make_response(redirect(url_for('index')))
 		res.set_cookie('session', session_id, max_age=60*60*24*365*10)
 		return res
 
 @app.route('/logout')
+@requires_db
 @requires_login
 def logout():
-	con, cur = get_db()
+	cur = request.db.cursor()
 	cur.execute('DELETE FROM sessions WHERE user_id=?', (request.user_id,))
-	con.commit()
+	request.db.commit()
 
 	res = make_response(redirect(url_for('login')))
 	res.set_cookie('session', '', expires=0)
