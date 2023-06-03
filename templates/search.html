@@ -7,7 +7,7 @@
 	</form>
 	<h1 style="margin-bottom: 2rem;">Search Results for '{{term}}'</h1>
 	{% for recipe in results %}
-		<a href="{{url_for('recipe', recipe_id=recipe['id'])}}" class="button clickable" style="margin-bottom: 0.5rem;">{{recipe['name']}} by {{recipe['username']}}</a>
+		<a href="{{url_for('recipe', recipe_id=recipe['recipe_id'])}}" class="button clickable" style="margin-bottom: 0.5rem;">{{recipe['name']}} by {{recipe['username']}}</a>
 	{% endfor %}
 </main>
 {% endblock %}
