@@ -76,6 +76,8 @@ def all_recipes():
 		res = cur.execute('SELECT * FROM users WHERE id=?', (recipe['user_id'],))
 		author = res.fetchone()
 		recipe['username'] = author['username']
+
+	recipes = sorted(recipes, key=lambda r: r['name'])
 	
 	return render_template('all.html', recipes=recipes)
 
