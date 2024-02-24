@@ -79,7 +79,7 @@ def all_recipes():
 
 	recipes = sorted(recipes, key=lambda r: r['name'])
 	
-	return render_template('all.html', recipes=recipes)
+	return render_template('all.html', recipes=recipes, title='All Recipes')
 
 @app.route('/recipe/<recipe_id>')
 @requires_db
