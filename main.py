@@ -71,6 +71,11 @@ def all_recipes():
 	cur = request.db.cursor()
 	res = cur.execute('SELECT * FROM recipes')
 	recipes = res.fetchall()
+
+	for recipe in recipes:
+		res = cur.execute('SELECT * FROM users WHERE id=?', (recipe['user_id'],))
+		author = res.fetchone()
+		recipe['username'] = author['username']
 	
 	return render_template('all.html', recipes=recipes)
 
