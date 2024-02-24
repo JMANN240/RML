@@ -7,6 +7,9 @@
 	<h2 style="margin-bottom: 2rem;">
 		Explore below.
 	</h2>
+	<h2 style="margin-bottom: 1rem;">
+		<a href="{{url_for('all_recipes')}}" class="button clickable">All Recipes</a>
+	</h2>
 	<form action="{{url_for('search')}}" method="post" style="display: flex; flex-direction: row; margin-bottom: 2rem;">
 		<input type="text" name="term" style="margin-right: 0.5rem;" required>
 		<input type="submit" value="Search">

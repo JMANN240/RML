@@ -65,6 +65,15 @@ def search():
 			return redirect(url_for('index'))
 		return redirect(url_for('search', search=term))
 
+@app.route('/recipes')
+@requires_db
+def all_recipes():
+	cur = request.db.cursor()
+	res = cur.execute('SELECT * FROM recipes')
+	recipes = res.fetchall()
+	
+	return render_template('all.html', recipes=recipes)
+
 @app.route('/recipe/<recipe_id>')
 @requires_db
 def recipe(recipe_id):
